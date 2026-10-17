@@ -8975,5 +8975,20 @@
     "failedToSave": "Failed to save shoe.",
     "failedToDelete": "Failed to delete shoe.",
     "failedToAssign": "Failed to update the shoe for this run."
+  },
+  "oauthConsent": {
+    "title": "Allow {{app}} to use your account?",
+    "description": "{{app}} will be able to read and change your SparkyFitness data (diary, exercise, measurements and more) as {{email}}.",
+    "scope": {
+      "openid": "Confirm who you are",
+      "profile": "See your name",
+      "email": "See your email address",
+      "offlineAccess": "Stay connected until you remove it"
+    },
+    "unknownApp": "An application",
+    "invalid": "This authorization link is incomplete. Start the connection again from the app.",
+    "failed": "The request could not be completed. Start the connection again from the app.",
+    "deny": "Deny",
+    "allow": "Allow"
   }
 }

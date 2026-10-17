@@ -32,6 +32,7 @@ import {
   useOutletContext,
 } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { OAuthContinuation } from '@/components/OAuthContinuation';
 import OidcCallback from '@/components/OidcCallback';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
@@ -47,6 +48,9 @@ import { getUserLoggingLevel } from '@/utils/userPreferences.ts';
 import { lazyWithChunkRecovery } from '@/utils/chunkRecovery';
 import { useTranslation } from 'react-i18next';
 const Auth = lazyWithChunkRecovery(() => import('@/pages/Auth/Auth'));
+const OAuthConsent = lazyWithChunkRecovery(
+  () => import('@/pages/Auth/OAuthConsent')
+);
 const ForgotPassword = lazyWithChunkRecovery(
   () => import('@/pages/Auth/ForgotPassword')
 );
@@ -187,6 +191,7 @@ const Root = () => {
             <ActiveUserProvider>
               <WaterContainerProvider>
                 <LanguageHandler />
+                <OAuthContinuation />
                 <AppSetup
                   setLatestRelease={setLatestRelease}
                   setShowNewReleaseDialog={setShowNewReleaseDialog}
@@ -315,6 +320,11 @@ const router = createBrowserRouter([
     ErrorBoundary: RootErrorBoundary,
     children: [
       { path: '/login', Component: Auth, ErrorBoundary: RootErrorBoundary },
+      {
+        path: '/oauth/consent',
+        Component: OAuthConsent,
+        ErrorBoundary: RootErrorBoundary,
+      },
       {
         path: '/forgot-password',
         Component: ForgotPassword,

@@ -3,4 +3,5 @@ export const authKeys = {
   oidcProviders: ['auth', 'oidcProviders'] as const,
   mfaFactors: (email: string) => ['auth', 'mfaFactors', email] as const,
   identity: ['identity', 'accessible-users'],
+  oauthClient: (clientId: string) => ['auth', 'oauthClient', clientId] as const,
 };

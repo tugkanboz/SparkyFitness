@@ -8975,5 +8975,20 @@
     "failedToSave": "Ayakkabı kaydedilemedi.",
     "failedToDelete": "Ayakkabı silinemedi.",
     "failedToAssign": "Bu koşunun ayakkabısı güncellenemedi."
+  },
+  "oauthConsent": {
+    "title": "{{app}} hesabını kullanabilsin mi?",
+    "description": "{{app}}, {{email}} olarak SparkyFitness verilerini (günlük, egzersiz, ölçümler ve daha fazlası) okuyabilecek ve değiştirebilecek.",
+    "scope": {
+      "openid": "Kim olduğunu doğrulama",
+      "profile": "Adını görme",
+      "email": "E-posta adresini görme",
+      "offlineAccess": "Sen kaldırana kadar bağlı kalma"
+    },
+    "unknownApp": "Bir uygulama",
+    "invalid": "Bu yetkilendirme bağlantısı eksik. Bağlantıyı uygulamadan yeniden başlat.",
+    "failed": "İstek tamamlanamadı. Bağlantıyı uygulamadan yeniden başlat.",
+    "deny": "Reddet",
+    "allow": "İzin ver"
   }
 }

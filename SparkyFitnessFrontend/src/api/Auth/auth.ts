@@ -265,3 +265,36 @@ export const demoLogin = async (): Promise<AuthResponse> => {
     email: data.user.email,
   };
 };
+
+export interface OAuthPublicClient {
+  client_name?: string;
+  client_uri?: string;
+}
+
+/** Public details of an OAuth client asking for consent (MCP connectors). */
+export const getOAuthPublicClient = async (
+  clientId: string
+): Promise<OAuthPublicClient | null> =>
+  apiCall('/auth/oauth2/public-client', {
+    method: 'GET',
+    params: { client_id: clientId },
+    suppress404Toast: true,
+  });
+
+export interface OAuthConsentResult {
+  url?: string;
+  redirect_uri?: string;
+}
+
+/**
+ * Answers an OAuth consent request. `oauthQuery` is the consent page's signed
+ * query string, sent back unchanged. Returns where the browser goes next.
+ */
+export const submitOAuthConsent = async (
+  accept: boolean,
+  oauthQuery: string
+): Promise<OAuthConsentResult> =>
+  apiCall('/auth/oauth2/consent', {
+    method: 'POST',
+    body: { accept, oauth_query: oauthQuery },
+  });

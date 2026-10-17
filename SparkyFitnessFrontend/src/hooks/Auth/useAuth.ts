@@ -11,6 +11,8 @@ import {
   requestPasswordReset,
   getMfaFactors,
   getAccessibleUsers,
+  getOAuthPublicClient,
+  submitOAuthConsent,
 } from '@/api/Auth/auth';
 import { authKeys } from '@/api/keys/auth';
 import { getErrorMessage } from '@/utils/api';
@@ -177,3 +179,24 @@ export const useAccessibleUsersQuery = (enabled: boolean) => {
     staleTime: 1000 * 60 * 5,
   });
 };
+
+/** Public details of the OAuth client on the consent page (MCP connectors). */
+export const useOAuthPublicClientQuery = (clientId: string | null) =>
+  useQuery({
+    queryKey: authKeys.oauthClient(clientId ?? ''),
+    queryFn: () => getOAuthPublicClient(clientId ?? ''),
+    enabled: !!clientId,
+    retry: false,
+  });
+
+/** Allows or denies an OAuth consent request; the page shows its own error. */
+export const useOAuthConsentMutation = () =>
+  useMutation({
+    mutationFn: ({
+      accept,
+      oauthQuery,
+    }: {
+      accept: boolean;
+      oauthQuery: string;
+    }) => submitOAuthConsent(accept, oauthQuery),
+  });
