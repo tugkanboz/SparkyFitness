@@ -13,6 +13,8 @@ import { bridgeBearerAuthHeader } from './utils/bearerAuthBridge.js';
 import { endPool } from './db/poolManager.js';
 import { log } from './config/logging.js';
 import { authenticate } from './middleware/authMiddleware.js';
+import { mcpAuthenticate } from './middleware/mcpAuthMiddleware.js';
+import mcpOAuthDiscoveryRoutes from './routes/mcpOAuthDiscoveryRoutes.js';
 import { isReadOnlyApiKeyAuthMutation } from './middleware/readOnlyApiKeyGuard.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { applySignOutCookieCleanup } from './middleware/signOutCookieCleanup.js';
@@ -244,33 +246,12 @@ app.use(
     );
   })
 );
-// OAuth/OIDC discovery probes must 404, not 401.
-//
-// This server authenticates with API keys and session cookies; it is not an
-// OAuth authorization server. When an MCP client's first request is rejected it
-// follows the spec and probes for OAuth metadata. Falling through to
-// `authenticate` answered those probes with 401, which reads as "OAuth exists,
-// keep negotiating", so the client retried discovery in a loop (and then failed
-// Dynamic Client Registration with a 404 anyway). A 404 says "no OAuth here",
-// and the client falls back to the bearer token it was configured with.
-//
-// Registered before the /mcp mount and the global `authenticate` so it beats
-// both. Deliberately an explicit list rather than all of `/.well-known/*`, so
-// an ACME http-01 challenge served through this app is untouched.
-const OAUTH_DISCOVERY_PATHS = new Set([
-  '/.well-known/openid-configuration',
-  '/.well-known/oauth-authorization-server',
-  '/.well-known/oauth-protected-resource',
-]);
-app.use((req, res, next) => {
-  // Strip an optional /mcp prefix: clients probe both the origin root and the
-  // MCP mount point, and Express has not applied the mount prefix yet here.
-  const path = req.path.startsWith('/mcp/')
-    ? req.path.slice('/mcp'.length)
-    : req.path;
-  if (!OAUTH_DISCOVERY_PATHS.has(path)) return next();
-  res.status(404).json({ error: 'not_found' });
-});
+// OAuth discovery for MCP clients (RFC 9728 protected resource metadata and
+// RFC 8414 authorization server metadata), served at the origin root because
+// that is where clients look; Better Auth itself is mounted under /api/auth.
+// Registered before the /mcp mount and the global `authenticate` so these
+// public documents are never answered with a 401.
+app.use(mcpOAuthDiscoveryRoutes);
 // External MCP endpoint — a self-contained chain mounted top-level (not /api)
 // to skip the /api/auth interceptor and cache-control middleware. It sits
 // before the global parser so its route-local parser wins (the global
@@ -283,7 +264,9 @@ app.use(
   requestLogger({ logCompletion: true }),
   express.json({ limit: isDemoMode() ? '1mb' : '50mb' }),
   cookieParser(),
-  authenticate,
+  // Accepts MCP OAuth access tokens as well as API keys and sessions, and
+  // answers 401s with the challenge that starts the OAuth flow.
+  mcpAuthenticate,
   // /mcp mounts ahead of the global route table, so it needs the demo guard
   // explicitly — the app-level one below never sees these requests.
   demoRestrictionGuard,

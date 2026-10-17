@@ -113,6 +113,14 @@ BEGIN
     'user_custom_moods',
     'user_mood_display_preferences',
     'passkey_registration_tickets',
+    'jwks',
+    'oauth_client',
+    'oauth_resource',
+    'oauth_client_resource',
+    'oauth_refresh_token',
+    'oauth_access_token',
+    'oauth_consent',
+    'oauth_client_assertion',
     'exercise_entry_laps',
     'exercise_entry_gps_points',
     'exercise_entry_distance_series',
@@ -1039,6 +1047,18 @@ CREATE POLICY modify_policy ON public.user_medication_display_preferences FOR AL
 -- RLS). Deny the app role entirely as defense-in-depth so a stray GRANT can
 -- never expose session material to user-scoped queries.
 CREATE POLICY deny_all_policy ON public.passkey_registration_tickets FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+
+-- MCP OAuth provider tables (Tier 3 - system/internal): signing keys, OAuth
+-- clients, tokens and consents. Only Better Auth touches them, through its own
+-- pool as the schema owner. Deny the app role entirely.
+CREATE POLICY deny_all_policy ON public.jwks FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_client FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_resource FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_client_resource FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_refresh_token FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_access_token FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_consent FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
+CREATE POLICY deny_all_policy ON public.oauth_client_assertion FOR ALL TO PUBLIC USING (false) WITH CHECK (false);
 
 -- Open Food Facts product-read rate limit (Tier 1 - system/internal). The
 -- singleton contains only cross-instance lease/cooldown state and is accessed

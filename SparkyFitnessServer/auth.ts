@@ -15,7 +15,16 @@ import { createDefaultNutrientPreferencesForUser } from './services/nutrientDisp
 import { isPrivateNetworkAddress } from './utils/corsHelper.js';
 import { apiKey } from '@better-auth/api-key';
 import { v4 } from 'uuid';
-import { emailOTP, magicLink, admin, twoFactor } from 'better-auth/plugins';
+import {
+  emailOTP,
+  magicLink,
+  admin,
+  twoFactor,
+  jwt,
+} from 'better-auth/plugins';
+import { mcp } from '@better-auth/mcp';
+import { jwksSchema, oauthProviderSchema } from './utils/mcpOAuthSchema.js';
+import { mcpResourceUrl } from './utils/mcpOAuth.js';
 import { sso } from '@better-auth/sso';
 import { expo } from '@better-auth/expo';
 import { expoSsoCookieRelay } from './utils/expoSsoCookieRelay.js';
@@ -953,6 +962,25 @@ const auth = betterAuth({
       },
     }),
     apiKeyPlugin,
+    // OAuth 2.1 authorization server for MCP clients (e.g. the Claude mobile
+    // app's custom connectors), so /mcp can be connected by signing in rather
+    // than pasting an API key. `jwt` holds the signing keys; access tokens are
+    // JWTs audience-bound to the /mcp resource and verified in
+    // middleware/mcpAuthMiddleware.ts. Clients register themselves through
+    // Dynamic Client Registration, and the user approves each one on the
+    // frontend's consent page.
+    jwt({
+      schema: jwksSchema,
+      disableSettingJwtHeader: true,
+    }),
+    mcp({
+      resource: mcpResourceUrl(),
+      loginPage: '/login',
+      consentPage: '/oauth/consent',
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      schema: oauthProviderSchema,
+    }),
   ],
 });
 /**
